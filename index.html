@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aria — Serenity Spa & Salon AI Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blush: #c4856a;
+      --blush-light: #e8b89e;
+      --blush-glow: rgba(196,133,106,0.12);
+      --cream: #faf6f1;
+      --cream2: #f3ede4;
+      --warm-white: #fff9f5;
+      --surface: #ffffff;
+      --border: rgba(196,133,106,0.2);
+      --border-subtle: rgba(0,0,0,0.06);
+      --text: #2c2420;
+      --muted: #9c8880;
+      --sage: #8a9e8c;
+      /* Zenith badge only */
+      --gold: #C9A84C;
+      --gold-glow: rgba(201,168,76,0.12);
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      background: var(--cream);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100dvh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Demo banner ── */
+    .demo-banner {
+      width: 100%;
+      background: var(--blush);
+      text-align: center;
+      padding: 8px 16px;
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.9);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    /* ── Header ── */
+    header {
+      width: 100%;
+      background: var(--warm-white);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .spa-logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f5e6dd, #ead4c8);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .online-dot {
+      position: absolute;
+      bottom: 1px; right: 1px;
+      width: 10px; height: 10px;
+      background: #3ecf8e;
+      border: 2px solid var(--warm-white);
+      border-radius: 50%;
+      box-shadow: 0 0 6px #3ecf8e88;
+    }
+
+    .header-info { flex: 1; }
+    .header-info h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: 0.02em;
+    }
+    .header-info p {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+
+    .zenith-badge {
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      color: var(--gold);
+      border: 1px solid rgba(201,168,76,0.3);
+      padding: 4px 10px;
+      border-radius: 4px;
+      background: var(--gold-glow);
+      text-transform: uppercase;
+    }
+
+    /* ── Chat ── */
+    #chat {
+      flex: 1;
+      width: 100%;
+      max-width: 720px;
+      overflow-y: auto;
+      padding: 24px 16px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      scroll-behavior: smooth;
+    }
+
+    .msg {
+      display: flex;
+      gap: 10px;
+      max-width: 88%;
+      animation: fadeUp 0.2s ease;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .msg.user      { align-self: flex-end; flex-direction: row-reverse; }
+    .msg.assistant { align-self: flex-start; }
+
+    .avatar {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .msg.user .avatar {
+      background: var(--cream2);
+      border: 1px solid var(--border-subtle);
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .msg.assistant .avatar {
+      background: linear-gradient(135deg, #f5e6dd, #ead4c8);
+      border: 1px solid var(--border);
+    }
+
+    .bubble {
+      padding: 11px 15px;
+      border-radius: 18px;
+      font-size: 0.9rem;
+      line-height: 1.65;
+      word-break: break-word;
+    }
+
+    .msg.user .bubble {
+      background: var(--blush);
+      color: #fff;
+      border-bottom-right-radius: 5px;
+    }
+
+    .msg.assistant .bubble {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 5px;
+      color: var(--text);
+      box-shadow: 0 1px 8px rgba(0,0,0,0.05);
+    }
+
+    .typing .bubble {
+      display: flex; align-items: center; gap: 5px; padding: 16px 18px;
+    }
+    .typing .bubble span {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--blush); opacity: 0.6;
+      animation: blink 1.3s infinite;
+    }
+    .typing .bubble span:nth-child(2) { animation-delay: 0.18s; }
+    .typing .bubble span:nth-child(3) { animation-delay: 0.36s; }
+    @keyframes blink {
+      0%,80%,100% { transform: scale(0.75); opacity: 0.35; }
+      40%         { transform: scale(1);    opacity: 1; }
+    }
+
+    /* ── Starters ── */
+    #starters {
+      width: 100%;
+      max-width: 720px;
+      padding: 4px 16px 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .starter {
+      background: var(--warm-white);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .starter:hover { border-color: var(--blush); color: var(--blush); background: var(--blush-glow); }
+
+    /* ── Input ── */
+    #input-bar {
+      width: 100%;
+      max-width: 720px;
+      padding: 10px 16px 24px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    #user-input {
+      flex: 1;
+      background: var(--warm-white);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 13px 16px;
+      font-size: 0.9rem;
+      outline: none;
+      resize: none;
+      height: 50px;
+      max-height: 140px;
+      font-family: inherit;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    #user-input:focus {
+      border-color: var(--blush);
+      box-shadow: 0 0 0 3px var(--blush-glow);
+    }
+    #user-input::placeholder { color: var(--muted); }
+
+    #send-btn {
+      background: var(--blush);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      width: 50px; height: 50px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+      flex-shrink: 0;
+    }
+    #send-btn:hover { background: var(--blush-light); box-shadow: 0 4px 16px rgba(196,133,106,0.4); }
+    #send-btn:active { transform: scale(0.94); }
+    #send-btn:disabled { opacity: 0.35; cursor: default; box-shadow: none; }
+
+    #chat::-webkit-scrollbar { width: 4px; }
+    #chat::-webkit-scrollbar-track { background: transparent; }
+    #chat::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  </style>
+</head>
+<body>
+
+<div class="demo-banner">✦ Live demo — powered by Zenith AI ✦</div>
+
+<header>
+  <div class="spa-logo">
+    🌸
+    <div class="online-dot"></div>
+  </div>
+  <div class="header-info">
+    <h1>Aria — Serenity Spa & Salon</h1>
+    <p>Online · Ready to assist you</p>
+  </div>
+  <div class="zenith-badge">Zenith AI</div>
+</header>
+
+<div id="chat"></div>
+
+<div id="starters">
+  <button class="starter" onclick="sendStarter(this)">What services do you offer?</button>
+  <button class="starter" onclick="sendStarter(this)">How do I book an appointment?</button>
+  <button class="starter" onclick="sendStarter(this)">What are your prices?</button>
+  <button class="starter" onclick="sendStarter(this)">Do you have weekend availability?</button>
+</div>
+
+<div id="input-bar">
+  <textarea id="user-input" placeholder="Ask about services, pricing, or bookings…"></textarea>
+  <button id="send-btn" onclick="sendMessage()" title="Send">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="22" y1="2" x2="11" y2="13"></line>
+      <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+    </svg>
+  </button>
+</div>
+
+<script>
+  const SYSTEM_PROMPT = `You are Aria, a warm and professional AI assistant for Serenity Spa & Salon — a luxury day spa. You help clients with bookings, service info, pricing, and general questions.
+
+SERVICES & PRICING:
+- Swedish Massage (60 min) — $95 | (90 min) — $130
+- Deep Tissue Massage (60 min) — $110 | (90 min) — $150
+- Hot Stone Massage (90 min) — $145
+- Classic Facial (60 min) — $85
+- HydraFacial (75 min) — $145
+- Chemical Peel — $120
+- Manicure — $35 | Gel Manicure — $50
+- Pedicure — $55 | Gel Pedicure — $70
+- Blowout — $45 | Cut & Style — $75
+
+HOURS: Mon–Sat 9am–8pm, Sun 10am–6pm
+
+BOOKING: Clients can book online at serenityspa.com/book or call (555) 234-5678. Walk-ins welcome based on availability.
+
+POLICIES:
+- 24-hour cancellation notice required to avoid a 50% fee
+- We recommend arriving 10 minutes early
+- Gratuity not included — 18–20% appreciated
+
+Tone: warm, calm, and professional. Keep answers concise. If someone asks to book, guide them to the booking link or offer to collect their name and preferred time. Always end with a friendly offer to help further.`;
+
+  const chat = document.getElementById("chat");
+  const input = document.getElementById("user-input");
+  const sendBtn = document.getElementById("send-btn");
+  const starters = document.getElementById("starters");
+  let history = [];
+
+  function appendMsg(role, text, isTyping = false) {
+    const wrap = document.createElement("div");
+    wrap.className = "msg " + role + (isTyping ? " typing" : "");
+
+    const av = document.createElement("div");
+    av.className = "avatar";
+    av.textContent = role === "user" ? "G" : "🌸";
+
+    const bubble = document.createElement("div");
+    bubble.className = "bubble";
+
+    if (isTyping) {
+      bubble.innerHTML = "<span></span><span></span><span></span>";
+    } else if (role === "assistant") {
+      bubble.innerHTML = text
+        .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+        .replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>")
+        .replace(/\n/g,"<br>");
+    } else {
+      bubble.textContent = text;
+    }
+
+    wrap.appendChild(av);
+    wrap.appendChild(bubble);
+    chat.appendChild(wrap);
+    chat.scrollTop = chat.scrollHeight;
+    return { wrap, bubble };
+  }
+
+  async function sendMessage() {
+    const text = input.value.trim();
+    if (!text) return;
+
+    starters.style.display = "none";
+    input.value = "";
+    input.style.height = "50px";
+    sendBtn.disabled = true;
+
+    appendMsg("user", text);
+    history.push({ role: "user", content: text });
+
+    const { wrap: typingWrap } = appendMsg("assistant", "", true);
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: history, system: SYSTEM_PROMPT }),
+      });
+
+      const data = await res.json();
+      typingWrap.remove();
+
+      if (!res.ok) {
+        appendMsg("assistant", "I'm having a moment — please try again!");
+        history.pop();
+        return;
+      }
+
+      const reply = data.content?.[0]?.text || "Sorry, I didn't catch that.";
+      appendMsg("assistant", reply);
+      history.push({ role: "assistant", content: reply });
+
+    } catch (err) {
+      typingWrap.remove();
+      appendMsg("assistant", "I'm having a moment — please try again!");
+      history.pop();
+    } finally {
+      sendBtn.disabled = false;
+      input.focus();
+    }
+  }
+
+  function sendStarter(btn) {
+    input.value = btn.textContent;
+    sendMessage();
+  }
+
+  input.addEventListener("input", () => {
+    input.style.height = "50px";
+    input.style.height = Math.min(input.scrollHeight, 140) + "px";
+  });
+
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  });
+
+  appendMsg("assistant", "Welcome to Serenity Spa & Salon! 🌸 I'm Aria, your personal assistant. I can help you explore our services, check pricing, or get you booked in. What can I help you with today?");
+</script>
+</body>
+</html>
